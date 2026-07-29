@@ -11,15 +11,15 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 echo 'Building backend and frontend Docker containers...'
-                sh 'docker-compose build'
+                sh 'docker compose build'
             }
         }
 
         stage('Deploy Application') {
             steps {
                 echo 'Orchestrating multi-container deployment via Docker Compose...'
-                sh 'docker-compose down'
-                sh 'docker-compose up -d'
+                sh 'docker compose down'
+                sh 'docker compose up -d'
             }
         }
 
