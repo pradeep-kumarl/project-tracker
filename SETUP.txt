@@ -1,0 +1,107 @@
+================================================================================
+                    PROJECT TRACKER WEBAPP - SETUP & RUN GUIDE
+================================================================================
+
+OVERVIEW:
+Project Tracker is a secure, 3-tier web application built with Node.js/Express (Backend) 
+and HTML5/Vanilla CSS/JavaScript (Frontend). It includes automated task tracking, bulk 
+Excel upload (.xlsx), email notifications, and automated status categorization.
+
+--------------------------------------------------------------------------------
+1. QUICK START (LOCAL RUNNING)
+--------------------------------------------------------------------------------
+
+STEP 1: START BACKEND SERVER
+- Open Command Prompt or PowerShell.
+- Navigate to the backend folder:
+    cd E:\stackly\project-tracker\backend
+- Install dependencies (if first time):
+    npm install
+- Start the server:
+    npm start
+- The backend will start on: http://localhost:5000
+
+STEP 2: START FRONTEND SERVER
+- Open a second Command Prompt or PowerShell window.
+- Navigate to the frontend folder:
+    cd E:\stackly\project-tracker\frontend
+- Install dependencies (if first time):
+    npm install
+- Start the frontend web server:
+    npm start
+- The frontend will open/start on: http://localhost:3000
+
+STEP 3: ACCESS THE APPLICATION
+- Open your browser (Chrome/Edge) and go to:
+    http://localhost:3000
+
+--------------------------------------------------------------------------------
+2. APPLICATION FEATURES & USAGE
+--------------------------------------------------------------------------------
+
+- TAB 1: Assign Task & Bulk Upload
+    * Assign individual tasks using the manual form.
+    * Upload bulk tasks using sample file: E:\stackly\project-tracker\sample_tasks.xlsx
+
+- TAB 2: Upcoming Deadlines
+    * View upcoming pending tasks due within 2 days (or filter by date range).
+    * Click "Send Email" to notify employee.
+    * Click green "Mark Complete" to move task to Completed tab.
+    * Click red "Missed Deadline" to move task to Missed Deadlines tab.
+
+- TAB 3: Completed Tasks
+    * View all completed tasks with completion timestamp and date filter.
+
+- TAB 4: Missed Deadlines
+    * View all tasks past deadline or manually flagged as missed.
+
+--------------------------------------------------------------------------------
+3. SECURITY & HACK-FREE ARCHITECTURE (SECURITY BEST PRACTICES)
+--------------------------------------------------------------------------------
+
+1. SQL INJECTION PROTECTION:
+   All database queries use parameterized prepared statements (`?` placeholders)
+   preventing malicious SQL injection attacks.
+
+2. XSS (CROSS-SITE SCRIPTING) PREVENTION:
+   HTML inputs and dynamic outputs are sanitized using text node assignments 
+   and strict string escaping.
+
+3. CREDENTIAL PROTECTION (.env):
+   Sensitive data (database passwords, SMTP credentials) are stored strictly 
+   in environment variables (`.env`) and excluded from Git version control.
+
+4. CORS SCOPING:
+   Cross-Origin Resource Sharing is controlled to restrict unauthorized API access.
+
+5. HYBRID FAILOVER MODE:
+   In-memory safe fallback execution allows full application functionality even 
+   without an active external MySQL instance.
+
+--------------------------------------------------------------------------------
+4. DOCKER & CONTAINERS (OPTIONAL)
+--------------------------------------------------------------------------------
+To run using Docker Compose:
+    cd E:\stackly\project-tracker
+    docker-compose up --build
+Access frontend at http://localhost:3000 and backend at http://localhost:5000.
+
+================================================================================
+Quick Steps to Enable Real gmail Sending:
+Get Google App Password:
+
+Go to your Google Account: myaccount.google.com
+Make sure 2-Step Verification is turned ON under Security.
+Search for "App Passwords" in the top search bar.
+Create a new App Password (name it "Project Tracker") → Copy the generated 16-character code (e.g., xxxx xxxx xxxx xxxx).
+Update backend/.env: Open E:\stackly\project-tracker\backend\.env and replace your_app_password with your copied 16-character code:
+
+env
+
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=pradeepstackly@gmail.com
+SMTP_PASS=your_copied_16_digit_app_password
+Restart Backend: Press Ctrl + C in your backend terminal and run npm start.
+================================================================================

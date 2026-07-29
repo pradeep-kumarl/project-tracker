@@ -1,0 +1,143 @@
+================================================================================
+          PROJECT TRACKER - COMPLETE GIT, AWS, DOCKER & JENKINS COMMANDS GUIDE
+================================================================================
+
+This document contains step-by-step commands 
+
+--------------------------------------------------------------------------------
+STEP 1: GIT REPOSITORY COMMANDS (LOCAL VS CODE / CMD)
+--------------------------------------------------------------------------------
+
+1. Open terminal inside project root: E:\stackly\project-tracker
+
+2. Check Git status:
+   git status
+   [Explanation: Shows modified files, untracked files, and current branch state.]
+
+3. Stage all files for commit:
+   git add .
+   [Explanation: Adds all new and updated files to the Git staging area.]
+
+4. Commit changes:
+   git commit -m "Initial commit: 3-tier Project Tracker with Docker & Jenkinsfile"
+   [Explanation: Saves a snapshot of your staged changes with a descriptive message.]
+
+5. Set default branch to main:
+   git branch -M main
+   [Explanation: Renames your current active branch to 'main'.]
+
+6. Add your GitHub repository remote URL:
+   git remote add origin https://github.com/YOUR_USERNAME/project-tracker.git
+   [Explanation: Links your local repository to your remote GitHub repository.]
+
+7. Push code to GitHub:
+   git push -u origin main
+   [Explanation: Uploads local branch commits to the remote GitHub repository.]
+
+
+--------------------------------------------------------------------------------
+STEP 2: AWS EC2 INSTANCE SETUP & MOBXTERM SSH
+--------------------------------------------------------------------------------
+
+1. Launch AWS EC2 Instance:
+   - AMI: Ubuntu 22.04 LTS (64-bit)
+   - Instance Type: t2.micro (or t2.medium for Jenkins)
+   - Key Pair: Download .pem key file (e.g., project-key.pem)
+   - Security Group Inbound Rules:
+       * SSH (Port 22) -> Anywhere (0.0.0.0/0)
+       * HTTP (Port 80) -> Anywhere (0.0.0.0/0)
+       * Frontend (Port 3000) -> Anywhere (0.0.0.0/0)
+       * Backend API (Port 5000) -> Anywhere (0.0.0.0/0)
+       * Jenkins (Port 8080) -> Anywhere (0.0.0.0/0)
+
+2. Connect via MobaXterm:
+   - Click "Session" -> "SSH"
+   - Remote Host: <Your-AWS-EC2-Public-IP>
+   - Specify username: ubuntu
+   - Advanced SSH Settings -> Check "Use private key" -> Select your .pem file
+   - Click OK to SSH into EC2.
+
+
+--------------------------------------------------------------------------------
+STEP 3: LINUX COMMANDS ON AWS EC2 (VIA MOBXTERM)
+--------------------------------------------------------------------------------
+
+1. Update system package index:
+   sudo apt update && sudo apt upgrade -y
+   [Explanation: Refreshes Linux package index and updates software.]
+
+2. Install Git:
+   sudo apt install git -y
+   [Explanation: Installs Git version control on Ubuntu server.]
+
+3. Install Docker & Docker Compose:
+   sudo apt install docker.io docker-compose -y
+   [Explanation: Installs Docker engine and multi-container orchestration tool.]
+
+4. Enable and start Docker service:
+   sudo systemctl enable --now docker
+   [Explanation: Ensures Docker service starts automatically on server boot.]
+
+5. Add 'ubuntu' and 'jenkins' users to Docker group:
+   sudo usermod -aG docker ubuntu
+   [Explanation: Grants permissions to run Docker commands without using sudo.]
+
+6. Install Java (Required for Jenkins):
+   sudo apt install openjdk-17-jdk -y
+   [Explanation: Installs OpenJDK 17 required to run Jenkins automation server.]
+
+7. Install Jenkins:
+   curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+     /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+   echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+     https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+     /etc/apt/sources.list.d/jenkins.list > /dev/null
+   sudo apt update
+   sudo apt install jenkins -y
+   sudo systemctl enable --now jenkins
+   [Explanation: Adds Jenkins official repository and installs Jenkins service.]
+
+8. Get Jenkins Initial Admin Password:
+   sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+   [Explanation: Displays the initial unlock key required during Jenkins browser setup.]
+
+
+--------------------------------------------------------------------------------
+STEP 4: LOCAL DOCKER COMPOSE ORCHESTRATION COMMANDS
+--------------------------------------------------------------------------------
+
+1. Build and start all 3 containers (Database, Backend, Frontend):
+   docker-compose up --build -d
+   [Explanation: Builds container images and starts services in detached background mode.]
+
+2. Check running container status:
+   docker ps
+   [Explanation: Displays status, container IDs, and port mappings of active containers.]
+
+3. View real-time application logs:
+   docker-compose logs -f
+   [Explanation: Streams live logs from all 3 services for monitoring & debugging.]
+
+4. Stop and remove containers:
+   docker-compose down
+   [Explanation: Safely stops and removes containers and network interfaces.]
+
+
+--------------------------------------------------------------------------------
+STEP 5: JENKINS CI/CD PIPELINE CONFIGURATION IN BROWSER
+--------------------------------------------------------------------------------
+
+1. Open Jenkins in Browser: http://<AWS-EC2-PUBLIC-IP>:8080
+2. Enter Initial Admin Password obtained from Step 3.8.
+3. Install Suggested Plugins.
+4. Create New Pipeline Job:
+   - Name: Project-Tracker-Pipeline
+   - Select: Pipeline -> Click OK
+5. Under Pipeline definition:
+   - Definition: Pipeline script from SCM
+   - SCM: Git
+   - Repository URL: https://github.com/YOUR_USERNAME/project-tracker.git
+   - Script Path: Jenkinsfile
+6. Click Save and "Build Now" to trigger the automated CI/CD pipeline!
+
+================================================================================

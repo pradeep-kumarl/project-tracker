@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Tracker</title>
+<style>
+  /* Reset default browser spacing so our own spacing is predictable */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: #ffffff;         /* white background, as requested */
+    color: #1a1a1a;
+    font-family: Arial, sans-serif;
+  }
+
+  /* Top title bar */
+  header {
+    padding: 20px 30px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;          /* centers "Project Tracker" title */
+  }
+  h1 { margin: 0; font-size: 24px; }
+
+  /* Tab bar (Assign Task / Upcoming / Completed / Missed) */
+  .tabs {
+    display: flex;
+    justify-content: center;     /* centers the 4 tab buttons as a group */
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .tab-btn {
+    min-width: 170px;
+    text-align: center;
+    padding: 14px 24px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    cursor: pointer;
+    color: #555;                 /* inactive tab color */
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active {
+    color: #1a56db;              /* active tab turns blue */
+    border-bottom: 2px solid #1a56db;  /* blue underline on active tab */
+    font-weight: bold;
+  }
+
+  /* Fix: stop the browser's default blue "pressed button" highlight
+     from showing on click/hover/focus of a tab button */
+  .tab-btn:focus,
+  .tab-btn:active,
+  .tab-btn:hover {
+    outline: none !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+  .tab-btn::-moz-focus-inner { border: 0; }
+
+  /* Each tab's content area — hidden by default, shown when .active */
+  .tab-content {
+    display: none;
+    padding: 32px 20px;
+  }
+  .tab-content.active { display: block; }
+
+  /* White rounded "card" box used for the Assign Task and Upload forms */
+  .card {
+    max-width: 420px;
+    margin: 0 auto 24px;         /* centers the card horizontally */
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);  /* subtle shadow for depth */
+  }
+  .card h3 { margin-top: 0; text-align: center; font-size: 17px; }
+
+  /* Spacing + label styling for each input field inside a card */
+  .field { margin-bottom: 14px; text-align: left; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 5px;
+  }
+
+  /* Styling shared by all text/date/email inputs and the remarks textarea */
+  input, textarea {
+    width: 100%;
+    padding: 9px 11px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: Arial, sans-serif;
+  }
+  textarea { resize: vertical; }  /* only allow resizing up/down, not sideways */
+
+  /* Main blue action buttons (Assign Task, Upload) */
+  button {
+    background: #1a56db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 100%;
+    margin-top: 6px;
+  }
+  button:hover { background: #1543ad; }
+
+  /* Container for the 3 data tables (Upcoming, Completed, Missed) */
+  .table-wrap { max-width: 900px; margin: 0 auto; }
+  .table-wrap h3 { text-align: center; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: #fff;
+  }
+  th, td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+  }
+  th { color: #777; font-weight: 600; }
+
+  /* Row above each table holding the date filter + action buttons */
+  .filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .filter-bar input[type="date"] { width: auto; }
+
+  /* Grey "secondary" buttons (Filter, Generate Report) —
+     visually distinct from the main blue "Assign Task" button */
+  .secondary-btn {
+    width: auto;
+    background: #f0f2f5;
+    color: #333;
+    border: 1px solid #ccc;
+  }
+  .secondary-btn:hover { background: #e2e5ea; }
+</style>
+</head>
+<body>
+
+<!-- Page title -->
+<header><h1>Project Tracker</h1></header>
+
+<!-- Tab buttons: each calls showTab() with the id of the section to display -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('assign', this)">Assign Task</button>
+  <button class="tab-btn" onclick="showTab('upcoming', this)">Upcoming Deadlines</button>
+  <button class="tab-btn" onclick="showTab('completed', this)">Completed</button>
+  <button class="tab-btn" onclick="showTab('missed', this)">Missed Deadlines</button>
+</div>
+
+<!-- TAB 1: Assign Task — visible by default (class="active") -->
+<div id="assign" class="tab-content active">
+
+  <!-- Manual task assignment form -->
+  <div class="card">
+    <h3>Manually Assign a Task</h3>
+    <form id="assignForm">
+      <div class="field"><label>From Email (Sender)</label><input type="email" id="from_email" placeholder="pradeepstackly@gmail.com"></div>
+      <div class="field"><label>Employee ID</label><input type="text" id="employee_code" required></div>
+      <div class="field"><label>Employee Name</label><input type="text" id="name" required></div>
+      <div class="field"><label>Task Name</label><input type="text" id="task_name" required></div>
+      <div class="field"><label>Start Date</label><input type="date" id="start_date" required></div>
+      <div class="field"><label>End Date (Deadline)</label><input type="date" id="deadline" required></div>
+      <div class="field"><label>Remarks (optional)</label><textarea id="remarks" rows="2"></textarea></div>
+      <div class="field"><label>To Email (Employee Email)</label><input type="email" id="email" required></div>
+      <button type="submit">Assign Task</button>
+    </form>
+  </div>
+
+  <!-- Bulk task assignment via xlsx upload -->
+  <div class="card">
+    <h3>Or Upload xlsx</h3>
+    <form id="uploadForm">
+      <div class="field"><input type="file" id="fileInput" accept=".xlsx"></div>
+      <button type="submit">Upload</button>
+    </form>
+  </div>
+</div>
+
+<!-- TAB 2: Upcoming Deadlines (tasks due in the next 2 days) -->
+<div id="upcoming" class="tab-content">
+  <div class="table-wrap">
+    <h3>Upcoming Deadlines</h3>
+
+    <!-- Date range filter + report button row -->
+    <div class="filter-bar">
+      <span style="font-size:13px; align-self:center;">From:</span>
+      <input type="date" id="upcomingFromDate" onchange="loadUpcoming()">
+      <span style="font-size:13px; align-self:center;">To:</span>
+      <input type="date" id="upcomingToDate" onchange="loadUpcoming()">
+      <button class="secondary-btn" onclick="printReport('upcoming')">Generate Report</button>
+    </div>
+
+    <table>
+      <thead><tr><th>Employee</th><th>Email</th><th>Task</th><th>Deadline</th><th>Remarks</th><th>Action</th></tr></thead>
+      <!-- Rows are filled in dynamically by app.js -->
+      <tbody id="upcomingBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 3: Completed Tasks -->
+<div id="completed" class="tab-content">
+  <div class="table-wrap">
+    <h3>Completed Tasks</h3>
+    <div class="filter-bar">
+      <span style="font-size:13px; align-self:center;">From:</span>
+      <input type="date" id="completedFromDate" onchange="loadCompleted()">
+      <span style="font-size:13px; align-self:center;">To:</span>
+      <input type="date" id="completedToDate" onchange="loadCompleted()">
+      <button class="secondary-btn" onclick="printReport('completed')">Generate Report</button>
+    </div>
+    <table>
+      <thead><tr><th>Employee</th><th>Email</th><th>Task</th><th>Deadline</th><th>Completed At</th><th>Remarks</th></tr></thead>
+      <tbody id="completedBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 4: Missed Deadlines -->
+<div id="missed" class="tab-content">
+  <div class="table-wrap">
+    <h3>Missed Deadlines</h3>
+    <div class="filter-bar">
+      <span style="font-size:13px; align-self:center;">From:</span>
+      <input type="date" id="missedFromDate" onchange="loadMissed()">
+      <span style="font-size:13px; align-self:center;">To:</span>
+      <input type="date" id="missedToDate" onchange="loadMissed()">
+      <button class="secondary-btn" onclick="printReport('missed')">Generate Report</button>
+    </div>
+    <table>
+      <thead><tr><th>Employee</th><th>Email</th><th>Task</th><th>Deadline</th><th>Remarks</th></tr></thead>
+      <tbody id="missedBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- All interactivity (tab switching, API calls, report generation) lives in app.js -->
+<script src="app.js"></script>
+</body>
+</html>
